@@ -1,0 +1,112 @@
+قفل‌کردن هسته (به [[زبان انگلیسی|انگلیسی]]: Kernel Lockdown) یکی از ویژگی‌های جدید [[هسته لینوکس|هسته]] سیستم‌عامل [[لینوکس]] است که در نسخه ۵.۴ به آن اضافه شده است.
+
+هدف از ایجاد این ویژگی، قراردادن مرز مجکم‌تری بین بین فضای کاربر  (به [[زبان انگلیسی|انگلیسی]]: User Space) و فضای هسته (به [[زبان انگلیسی|انگلیسی]]: Kernel Space) از طریق محدودسازی [[ابرکاربر|کاربر ریشه]] است.<ref name=":0">{{یادکرد وب|عنوان=Linux to get kernel 'lockdown' feature|نشانی=https://www.zdnet.com/article/linux-to-get-kernel-lockdown-feature/|وبگاه=ZDNet|بازبینی=2021-05-13|کد زبان=en|نام=Catalin|نام خانوادگی=Cimpanu}}</ref> کاربر ریشه که با UID 0 مشخص می‌شود، به طور پیش‌فرض [[سطح دسترسی]] بالایی به تمام سیستم داشته و حتی امکان ویرایش هسته را هم دارد.<ref>{{یادکرد وب|عنوان=Linux_5.4 - Linux Kernel Newbies|نشانی=https://kernelnewbies.org/Linux_5.4#Kernel_lockdown_mode|وبگاه=kernelnewbies.org|بازبینی=2021-05-13}}</ref>
+
+== علت پیاده‌سازی ==
+فناوری‌هایی نظیر [[رابط متحد توسعه‌پذیر سیستم‌عامل|UEFI Secure Boot]] به این منظور ایجاد شده‌اند تا اطمینان حاصل کنند که یک سیستم قفل شده، تنها برنامه‌هایی را اجرا می‌کند که توسط منبعی معتبر امضا شده باشد. با این وجود، از آن جایی که کاربر ریشه امکان ویرایش کد هسته را دارد، عملا نمی‌توان چنین عملکرد درستی را تضمین کرد و اگر کنترل کاربر ریشه از دست صاحب اصلی سیستم خارج شده باشد یا کد مخربی را اجرا کند، امنیت سیستم به خطر می‌افتد.<ref name=":1">{{یادکرد وب|عنوان=Lockdown as a security module [LWN.net]|نشانی=https://lwn.net/Articles/791863/|وبگاه=lwn.net|بازبینی=2021-05-13}}</ref>
+
+مکانیزم قفل‌کردن هسته از همین رو ایجاد شده است تا در صورت فعال‌سازی در سیستم‌هایی که امنیت آن‌ها اهمیت بالایی دارد، بخشی از دسترسی‌های کاربر ریشه را هم غیرفعال کرده و اجازه تغییرات غیرمجاز در کدهای هسته را ندهد. بدین ترتیب مرز بین فضای کاربر و فضای هسته مستحکم‌تر شده و در سیستم‌هایی که این مکانیزم در آن‌ها فعال باشد، نمی‌توان برخی از تغییرات را حتی به کمک کاربر ریشه انجام داد.<ref name=":1" />
+
+== تاریخچه بحث و گفت‌وگو برای پیاده‌سازی این ویژگی ==
+از حدود سال ۲۰۱۲ زمزمه‌های پیاده‌سازی ویژگی قفل‌سازی هسته وجود داشته ولی به دلایل حواشی فراوان پیرامون محدود کردن سطح دسترسی کاربران و همچنین بحث پیرامون تاثیرگذار یا تاثیرگذار نبودن آن، این موضوع به نسخه نهایی هسته راه‌نیافته بود<ref>{{یادکرد وب|عنوان=Preparing the kernel for UEFI secure boot [LWN.net]|نشانی=https://lwn.net/Articles/514985/|وبگاه=lwn.net|بازبینی=2021-05-13}}</ref>؛ اما ویژگی‌های مشابهی در توزیع‌های مختلف لینوکس برای عملکردی مشابه پیاده‌سازی شده بودند. از جمله اولین افرادی که کار بر روی این ویژگی روی هسته اصلی لینوکس را شروع کردند، مهندس سابق شرکت [[گوگل]]، آقای [[:en:Matthew_Garrett|متیو گرت]] بود.<ref name=":0" />
+
+یکی از دلایل این حواشی مربوط به این می‌شود که در هسته لینوکس، مکانیزمی برای اعمال سیاست‌های امنیتی در قالب ماژول امنیتی لینوکس (به [[زبان انگلیسی|انگلیسی]]: Linux Security Module) قرار گرفته بود. این مکانیزم دست کاربر را برای اعمال محدودیت‌های امنیتی مختلف باز می‌گذارد. با این وجود مشکلی که وجود دارد، این بخش از فضای کاربر قابل اعمال است اما چنین سازوکاری که قرار است جلوی ویرایش نابه‌جای هسته را بگیرد، باید پیش از این که بتوان سیاست امنیتی خاصی را اعمال کرد، فعال بشود.
+
+== نحوه پیاده‌سازی ==
+با توجه به مسائلی که در مورد لزوم پیاده‌سازی این قابلیت قبل از بالا‌آمدن سیستم وجود دارد، ی ماژول امنیتی مقدماتی در هنگام بالاآمدن سیستم ایجاد می‌شود تا قلاب‌های امنیتی (Security Hooks) اولیه لازم برای مکانیزم قفل کردن هسته ثبت بشوند. این قلاب امنیتی در پرونده lsm_hooks.h تعریف شده و در پرونده security.c در تابع security_locked_down فراخوانی می‌شود.<syntaxhighlight lang="c" line="1">
+
+//lsm_hooks.h
+int (*locked_down)(enum lockdown_reason what);
+	
+//security.c	
+int security_locked_down(enum lockdown_reason what)
+{
+	return call_int_hook(locked_down, 0, what);
+}
+
+</syntaxhighlight>عملا ایجاد این قلاب امنیتی به هسته اجازه می‌دهد حالت‌های مختلف نامعتبر بودن را که در توابع مختلف امنیتی مشخص شده‌اند، به درستی چک کند.
+
+فعال‌سازی حالت قفل‌سازی هسته به شکلی است که علاوه بر این که بعد از اجرا شدن می‌توان آن را فعال کرد<ref>{{یادکرد وب|عنوان=kernel_lockdown(7) - Linux manual page|نشانی=https://man7.org/linux/man-pages/man7/kernel_lockdown.7.html|وبگاه=man7.org|بازبینی=2021-05-13}}</ref>، در هنگام بالا آمدن هم می‌توان آن را به عنوان پارامتر مشخص کرد. همچنین در هنگام ساختن (Build کردن) کد هسته هم می‌توان آن را در پرونده‌های KConfig مشخص کرد.
+
+به طور کلی سه حالت برای قفل‌سازی هسته وجود دارد. LOCKDOWN_NONE که عملا این مورد را فعال نمی‌کند. حالت LOCKDOWN_INTEGRITY_MAX
+
+که جلوی عملیات‌هایی که منجر به تغییر غیرمجاز در هسته (عموما از سمت کاربر ریشه) می‌شوند را گرفته و حالت LOCKDOWN_CONFIDENTIALITY_MAX که حتی امکان افشای داده‌های سطح هسته را هم می‌گیرد. با این وجود باید توجه کرد که در اصل حالت‌های خیلی بیش‌تری وجود دارند که همه آن‌ها در قالب  enum lockdown_reason  در پرونده Security.h قرار گرفته‌اند. به دلیل ترتیبی بودن enumها، عملا فعلا‌سازی LOCKDOWN_INTEGRITY_MAX باعث فعال‌ شدن همه حالت‌های امنیتی پیشین آن نظیر LOCKDOWN_KEXEC هم می‌شود.<ref>{{یادکرد وب|عنوان=kernel/git/torvalds/linux.git - Linux kernel source tree|نشانی=https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=aefcf2f4b58155d27340ba5f9ddbe9513da8286|وبگاه=git.kernel.org|بازبینی=2021-05-13}}</ref><syntaxhighlight lang="c" line="1">
+enum lockdown_reason {
+	LOCKDOWN_NONE,
+	LOCKDOWN_MODULE_SIGNATURE,
+	LOCKDOWN_DEV_MEM,
+	LOCKDOWN_EFI_TEST,
+	LOCKDOWN_KEXEC,
+	LOCKDOWN_HIBERNATION,
+	LOCKDOWN_PCI_ACCESS,
+	LOCKDOWN_IOPORT,
+	LOCKDOWN_MSR,
+	LOCKDOWN_ACPI_TABLES,
+	LOCKDOWN_PCMCIA_CIS,
+	LOCKDOWN_TIOCSSERIAL,
+	LOCKDOWN_MODULE_PARAMETERS,
+	LOCKDOWN_MMIOTRACE,
+	LOCKDOWN_DEBUGFS,
+	LOCKDOWN_INTEGRITY_MAX,
+	LOCKDOWN_KCORE,
+	LOCKDOWN_KPROBES,
+	LOCKDOWN_BPF_READ,
+	LOCKDOWN_PERF,
+	LOCKDOWN_TRACEFS,
+	LOCKDOWN_CONFIDENTIALITY_MAX,
+};
+</syntaxhighlight>به عنوان مثال یکی از تغییراتی که در این نسخه داده شده است، مربوط به پرونده kexec_file.c است:<syntaxhighlight lang="c" line="1">
+static int kimage_validate_signature(struct kimage *image)
+{
+ 	...
+	 	if (!ima_appraise_signature(READING_KEXEC_IMAGE) &&
+			security_locked_down(LOCKDOWN_KEXEC))
+	 		return -EPERM;
+ 	...	
+ }
+</syntaxhighlight>
+
+
+این تابع در صورتی که امضای پرونده توسط واحد Integrity Measurement Architecture تایید نشود و حالت LOCKDOWN_KEXEC هم فعال باشد، خطای مجاز نبودن عملیات (EPERM) می‌دهد.
+
+بخش عمده تغییرات مربوط به این قابلیت مربوط به پرونده lockdown.c می‌شود. مثلا پیاده‌سازی اصلی تابع نظیر شده به قلاب امنیتی locked_down با نام lockdown_is_locked_down در این پرونده قرار دارد. در این پرونده توابعی برای خواندن و نوشتن هم پیاده‌سازی شده است که در اصل یکسری بررسی‌ها روی وضعیت و حالات قفل‌سازی هسته انجام داده و در صورت نیاز پیام‌ها یا خطاهایی را که در هنگام خروجی‌دادن این توابع باید تولید بشوند، مشخص کرده و در نهایت عملکرد اصلی خواندن و نوشتن را انجام می‌دهند.<ref name=":2">{{یادکرد وب|عنوان=torvalds/linux|نشانی=https://github.com/torvalds/linux|وبگاه=GitHub|بازبینی=2021-05-13|کد زبان=en}}</ref>
+
+ همچنین تابعی برای فعال‌سازی وضعیت قفل‌کردن هسته هم به نام lock_kernel_down وجود دارد که در آن کنترل می‌شود که سطح خواسته شده  برای قفل کردن کمتر از سطح فعلی نباشد و در صورتی که مشکلی نبود، سطح قفل‌سازی هسته به سطح گفته شده ارتقا می‌یابد. قسمت‌های مهم اشاره شده در قطعه کد زیر نوشته شده است:<syntaxhighlight lang="c" line="1">
+static int lock_kernel_down(const char *where, enum lockdown_reason level)
+{
+	if (kernel_locked_down >= level)
+		return -EPERM;
+
+	kernel_locked_down = level;
+	pr_notice("Kernel is locked down from %s; see man kernel_lockdown.7\n",
+		  where);
+	return 0;
+}
+
+static int lockdown_is_locked_down(enum lockdown_reason what)
+{
+	if (WARN(what >= LOCKDOWN_CONFIDENTIALITY_MAX,
+		 "Invalid lockdown reason"))
+		return -EPERM;
+
+	if (kernel_locked_down >= what) {
+		if (lockdown_reasons[what])
+			pr_notice("Lockdown: %s: %s is restricted; see man kernel_lockdown.7\n",
+				  current->comm, lockdown_reasons[what]);
+		return -EPERM;
+	}
+
+	return 0;
+}
+
+static struct security_hook_list lockdown_hooks[] __lsm_ro_after_init = {
+	LSM_HOOK_INIT(locked_down, lockdown_is_locked_down),
+};
+</syntaxhighlight>این قابلیت ریزه‌کاری‌های دیگری هم در قسمت‌های دیگر کد هسته دارد. تغییراتی جزئی در کدهای مربوط به [[رابط قدرت و تنظیمات پیشرفته|ACPI]] که در هنگام بوت‌شدن سیستم برای مدیریت توان و شناسایی قطعات سخت‌افزاری کاربرد دارد داده شده است. به علاوه تغییراتی جزئی در file.c و inode.c داده شده تا وضعیت قفل‌بودن هسته در حالاتی خاص گزارش بشود.<ref name=":2" />
+
+== منابع ==
+<references group=""></references>
+
+
+[[رده:سیستم‌عامل‌ها]]
+[[رده:لینوکس]]
