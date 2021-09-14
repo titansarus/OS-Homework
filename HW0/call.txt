@@ -1,0 +1,205 @@
+1.
+
+gcc -m32 -S -o recurse.S recurse.c
+
+
+recur (i-1):
+
+
+   //computing i-1
+	movl	8(%ebp), %eax
+	subl	$1, %eax
+	subl	$12, %esp
+	
+	
+	//actuall call of recur
+	pushl	%eax
+	call	recur
+	addl	$16, %esp
+	
+	
+	jmp	.L3
+
+2.
+
+gcc -m32 -c map.S -o map.obj
+gcc -m32 -c recurse.S -o recurse.obj
+
+objdump -D map.obj
+objdump -D recurse.obj
+
+-----
+
+.text
+	Contains instructions and code. (usually read only)
+.data
+	Contains (global) initialized tables and variables (data). (for example 'stuff' in 'map') with read and write access, but in .rodata, we have initialized data with only read access. 
+
+
+3.
+
+objdump  --syms (or objdump -t)
+example: objdump --syms map.obj:
+	map.obj:     file format elf32-i386
+
+	SYMBOL TABLE:
+	00000000 l    df *ABS*  00000000 map.c
+	00000000 l    d  .text  00000000 .text
+	00000000 l    d  .data  00000000 .data
+	00000000 l    d  .bss   00000000 .bss
+	00000000 l    d  .text.__x86.get_pc_thunk.bx    00000000 .text.__x86.get_pc_thunk.bx
+	00000000 l    d  .note.GNU-stack        00000000 .note.GNU-stack
+	00000000 l    d  .eh_frame      00000000 .eh_frame
+	00000000 l    d  .comment       00000000 .comment
+	00000000 l    d  .group 00000000 .group
+	00000004       O *COM*  00000004 foo
+	00000000 g     O .data  00000004 stuff
+	00000000 g     F .text  00000060 main
+	00000000 g     F .text.__x86.get_pc_thunk.bx    00000000 .hidden __x86.get_pc_thunk.bx
+	00000000         *UND*  00000000 _GLOBAL_OFFSET_TABLE_
+	00000000         *UND*  00000000 malloc
+	00000000         *UND*  00000000 recur
+
+4.
+
+*UND* -> Undefience. it means symbol is referenced but not defiened here.
+
+l,g,u,! -> l: local , g: global, u:unique global, ?: neither global or local or both global and local.
+So g means global symbol.
+
+O: object ('stuff' and 'foo' are objects in this definition)
+
+F: function.
+
+5.
+
+objdump -r map.obj
+
+
+0000002a R_386_PLT32       malloc
+0000003a R_386_PLT32       malloc
+
+0000002a indicates offset from the first usage of malloc in code to where it's actual instructions is included. So CPU will know where to jump when it encounters a call to malloc. It is obvious that 0000002a == 42.
+
+
+6.
+In recurse.c (recurse.obj)
+
+objdump -t recurse.obj
+
+recurse.obj:     file format elf32-i386
+
+SYMBOL TABLE:
+00000000 l    df *ABS*  00000000 recurse.c
+00000000 l    d  .text  00000000 .text
+00000000 l    d  .data  00000000 .data
+00000000 l    d  .bss   00000000 .bss
+00000000 l    d  .rodata        00000000 .rodata
+00000000 l    d  .text.__x86.get_pc_thunk.ax    00000000 .text.__x86.get_pc_thunk.ax
+00000000 l    d  .note.GNU-stack        00000000 .note.GNU-stack
+00000000 l    d  .eh_frame      00000000 .eh_frame
+00000000 l    d  .comment       00000000 .comment
+00000000 l    d  .group 00000000 .group
+00000000 g     F .text  00000052 recur
+00000000 g     F .text.__x86.get_pc_thunk.ax    00000000 .hidden __x86.get_pc_thunk.ax
+00000000         *UND*  00000000 _GLOBAL_OF
+
+
+
+7.
+objdump -t map
+
+
+We see that 'recur' is no longer *UND* and is now F (function).
+
+Also if we run objdump -T map, we see dynamically linked symbols. They were not available for previous symbol tables. It now contains information about functions like malloc and even printf.
+
+Also the symbol table is much larger than the 'map.obj' or 'recurse.obj' alone.
+
+Also the address offset is no longer zero. It is bacause linker is used to make the final binary executable and they are mapped to memory address (actually memory offsets. They consider the first address of address space to be zero. Relocation is done by other mechanisms.)
+
+
+SYMBOL TABLE:
+00000154 l    d  .interp        00000000              .interp
+00000168 l    d  .note.ABI-tag  00000000              .note.ABI-tag
+00000188 l    d  .note.gnu.build-id     00000000              .note.gnu.build-id
+000001ac l    d  .gnu.hash      00000000              .gnu.hash
+000001cc l    d  .dynsym        00000000              .dynsym
+0000025c l    d  .dynstr        00000000              .dynstr
+00000300 l    d  .gnu.version   00000000              .gnu.version
+00000314 l    d  .gnu.version_r 00000000              .gnu.version_r
+00000344 l    d  .rel.dyn       00000000              .rel.dyn
+00000384 l    d  .rel.plt       00000000              .rel.plt
+0000039c l    d  .init  00000000              .init
+000003c0 l    d  .plt   00000000              .plt
+00000400 l    d  .plt.got       00000000              .plt.got
+00000410 l    d  .text  00000000              .text
+00000674 l    d  .fini  00000000              .fini
+00000688 l    d  .rodata        00000000              .rodata
+00000694 l    d  .eh_frame_hdr  00000000              .eh_frame_hdr
+000006d8 l    d  .eh_frame      00000000              .eh_frame
+00001ed4 l    d  .init_array    00000000              .init_array
+00001ed8 l    d  .fini_array    00000000              .fini_array
+00001edc l    d  .dynamic       00000000              .dynamic
+00001fd4 l    d  .got   00000000              .got
+00002000 l    d  .data  00000000              .data
+0000200c l    d  .bss   00000000              .bss
+00000000 l    d  .comment       00000000              .comment
+00000000 l    df *ABS*  00000000              crtstuff.c
+00000460 l     F .text  00000000              deregister_tm_clones
+000004a0 l     F .text  00000000              register_tm_clones
+000004f0 l     F .text  00000000              __do_global_dtors_aux
+0000200c l     O .bss   00000001              completed.7283
+00001ed8 l     O .fini_array    00000000              __do_global_dtors_aux_fini_array_entry
+00000540 l     F .text  00000000              frame_dummy
+00001ed4 l     O .init_array    00000000              __frame_dummy_init_array_entry
+00000000 l    df *ABS*  00000000              map.c
+00000000 l    df *ABS*  00000000              recurse.c
+00000000 l    df *ABS*  00000000              crtstuff.c
+000007f4 l     O .eh_frame      00000000              __FRAME_END__
+00000000 l    df *ABS*  00000000              
+00001ed8 l       .init_array    00000000              __init_array_end
+00001edc l     O .dynamic       00000000              _DYNAMIC
+00001ed4 l       .init_array    00000000              __init_array_start
+00000694 l       .eh_frame_hdr  00000000              __GNU_EH_FRAME_HDR
+00001fd4 l     O .got   00000000              _GLOBAL_OFFSET_TABLE_
+00000670 g     F .text  00000002              __libc_csu_fini
+00000000  w      *UND*  00000000              _ITM_deregisterTMCloneTable
+00000450 g     F .text  00000004              .hidden __x86.get_pc_thunk.bx
+00002000  w      .data  00000000              data_start
+00000000       F *UND*  00000000              printf@@GLIBC_2.0
+0000200c g       .data  00000000              _edata
+00000674 g     F .fini  00000000              _fini
+000005ad g     F .text  00000052              recur
+00000549 g     F .text  00000000              .hidden __x86.get_pc_thunk.dx
+00000000  w    F *UND*  00000000              __cxa_finalize@@GLIBC_2.1.3
+00002008 g     O .data  00000004              stuff
+00000000       F *UND*  00000000              malloc@@GLIBC_2.0
+00002000 g       .data  00000000              __data_start
+00000000  w      *UND*  00000000              __gmon_start__
+00002004 g     O .data  00000000              .hidden __dso_handle
+0000068c g     O .rodata        00000004              _IO_stdin_used
+00000000       F *UND*  00000000              __libc_start_main@@GLIBC_2.0
+00000610 g     F .text  0000005d              __libc_csu_init
+00002010 g     O .bss   00000004              foo
+00002014 g       .bss   00000000              _end
+00000410 g     F .text  00000000              _start
+00000688 g     O .rodata        00000004              _fp_hw
+0000200c g       .bss   00000000              __bss_start
+0000054d g     F .text  00000060              main
+000005ff g     F .text  00000000              .hidden __x86.get_pc_thunk.ax
+0000200c g     O .data  00000000              .hidden __TMC_END__
+00000000  w      *UND*  00000000              _ITM_registerTMCloneTable
+0000039c g     F .init  00000000              _init
+
+DYNAMIC SYMBOL TABLE:
+00000000  w   D  *UND*  00000000              _ITM_deregisterTMCloneTable
+00000000      DF *UND*  00000000  GLIBC_2.0   printf
+00000000  w   DF *UND*  00000000  GLIBC_2.1.3 __cxa_finalize
+00000000      DF *UND*  00000000  GLIBC_2.0   malloc
+00000000  w   D  *UND*  00000000              __gmon_start__
+00000000      DF *UND*  00000000  GLIBC_2.0   __libc_start_main
+00000000  w   D  *UND*  00000000              _ITM_registerTMCloneTable
+0000068c g    DO .rodata        00000004  Base        _IO_stdin_used
+
+

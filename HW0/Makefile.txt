@@ -1,0 +1,27 @@
+Line #1 -> defualt_goal indicates which target is the default if no target is specified when calling 'make'.
+
+LINE #3 to #8 -> Variables. their names can be changed to something else, but these names are usually used.
+
+LINE #3 -> Program for compiling C programs. (here it is gcc, we can change it to something else, for example, clang)
+
+LINE #4 -> Compile flags.
+
+LINE #5 -> Source code files that need to be compiled.
+
+LINE #7 -> Precompiled object files (libraries)
+
+LINE #8 -> Name of the binary file that is generated at the end. (i.e., final output)
+
+LINE #10 -> It means every file (matched with % (like regex)) is dependent on existance of its ".c" counterpart. 
+
+LINE #11 -> For anything matching line #10 target name, it will try to compile that name appended with .c postfix. The command will try to compile %.c file into % file. (% can be any name with one or more characters).
+$@ matches with name captured by % and $^ matches with name captured by %.c. i.e., "$@" matches the target name, and "$^" matches the prerequisite name.
+For example, if you run 'make something' command, it will first check that 'something.c' exists (or if we had 'something.c' as a target name, it would try to run that first) and then run 'gcc -Wall wc_sort.o -o something something.c'.
+
+LINE #13,#14 -> If we run 'make clean', it will remove all files whose name is stored in the BINARIES variable. (i.e., words)
+
+LINE #19 -> it means that the 'default entry point is dependent on the executable target. So 'make' will try to run 'executable' commands.
+
+LINE #16 #17 -> it is actually equivalent to:
+gcc -Wall main.c word_count.c wc_sort.o -o words
+it will run gcc with -Wall flag and compile 'main.c' and 'word_count.c' and link 'wc_sort.o' with them and puts the output in 'words' file.

@@ -1,0 +1,205 @@
+GDB Practice:
+(I used cgdb. Everything is similar to gdb except first command)
+آ.
+cgdb map
+
+----------------
+
+ب.
+b main
+
+----------------
+
+ج.
+run
+
+----------------
+
+د.
+print argv
+
+-argv is 0x7fffffffe158
+
+----------------
+
+ه.
+print *argv
+    
+- *argv is "/home/vagrant/code/personal/HW0/map"
+
+----------------
+
+و.
+b recur
+continue
+
+----------------
+
+ز.
+print &recur
+- (int (*)(int)) 0x5555555546cd <recur>
+
+--it is noteworthy that b recur place breakpoint on 0x5555555546d8, which is the first statement of recur function (int j = i)
+
+
+----------------
+
+ح.
+Same as و
+
+----------------
+
+ط.
+list // to see what line is if
+b 8 // if is on line 8
+continue
+
+----------------
+
+ی.
+layout asm
+
+----------------
+
+ک
+break *recur+53
+continue
+
+----------------
+
+ل.
+info reg
+    *
+rax            0x2      2
+rbx            0x0      0
+rcx            0x0      0
+rdx            0x0      0
+rsi            0x555555756340   93824994337600
+rdi            0x2      2
+rbp            0x7fffffffe030   0x7fffffffe030
+rsp            0x7fffffffe010   0x7fffffffe010
+r8             0x0      0
+r9             0x7ffff7b52610   140737349232144
+r10            0x555555756010   93824994336784
+r11            0x246    582
+r12            0x555555554580   93824992232832
+r13            0x7fffffffe150   140737488347472
+r14            0x0      0
+r15            0x0      0
+rip            0x555555554702   0x555555554702 <recur+53>
+eflags         0x202    [ IF ]
+cs             0x33     51
+ss             0x2b     43
+ds             0x0      0
+es             0x0      0
+fs             0x0      0
+gs             0x0      0
+
+----------------
+
+م.
+step
+
+----------------
+
+ن.
+layout prev // or layout src
+
+----------------
+
+س.
+backtrace
+
+#0  recur (i=2) at recurse.c:5
+#1  0x0000555555554707 in recur (i=3) at recurse.c:9
+#2  0x00005555555546c6 in main (argc=1, argv=0x7fffffffe158) at map.c:23
+
+----------------
+
+ع.
+ignore 2 1
+ignore 3 2
+ignore 4 2
+
+//We actually have breakpoint on recur, we must skip it until when it is called with i=0
+
+//IMPORTNAT. another way: break recur if i==0 
+//for this way, all other breakpints must be disabled or all of them should be tbreak (one time breaks)
+
+----------------
+
+
+ف.
+continue
+
+----------------
+
+ص.
+
+backtrace
+
+#0  recur (i=0) at recurse.c:5
+#1  0x0000555555554707 in recur (i=1) at recurse.c:9
+#2  0x0000555555554707 in recur (i=2) at recurse.c:9
+#3  0x0000555555554707 in recur (i=3) at recurse.c:9
+#4  0x00005555555546c6 in main (argc=1, argv=0x7fffffffe158) at map.c:23
+
+----------------
+
+ق.
+frame 4
+print argc
+
+- argc is 1
+
+----------------
+
+ر.
+b 12
+continue
+continue
+
+----------------
+
+ش.
+layout asm
+
+----------------
+
+ت.
+ mov    $0x0,%eax
+ leaveq
+ retq
+
+ ----------------
+
+ For example in:
+ 0x555555554709 <recur+60>   mov    $0x0 %eax                                                                                                                                        
+ 0x55555555470e <recur+65>               leaveq                                                                                                                                                  
+ 0x55555555470f <recur+66>               retq
+
+Note: Sometimes if we have multiple returns, compilers  use a label and put 'leaveq' and 'retq' there. Then for every 'return' except the last one, they jmp to that label after mov. The last return usually don't need that jump because usually that label is put right after the mov corresponding to the last return.
+
+----------------
+
+ث.
+layout src
+
+----------------
+
+خ.
+next
+next
+next
+
+
+//Or next 3
+
+----------------
+
+ذ.
+contiune
+----------------
+
+ض.
+quit

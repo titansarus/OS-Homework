@@ -1,0 +1,283 @@
+\documentclass[12pt]{article}
+\usepackage{graphicx,import}
+\usepackage[svgnames]{xcolor} 
+\usepackage{fancyhdr}
+\usepackage{subfig}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{cite}
+\usepackage[many]{tcolorbox}
+\usepackage{listings }
+\usepackage[a4paper, total={6in, 8in} , bottom = 25mm , top = 25mm, headheight = 1.25cm , includehead,includefoot,heightrounded ]{geometry}
+\usepackage{afterpage}
+\usepackage{amssymb}
+\usepackage{pdflscape}
+\usepackage{textcomp}
+\usepackage{xecolor}
+\usepackage{rotating}
+\usepackage{pdfpages}
+\usepackage[Kashida]{xepersian}
+\usepackage[T1]{fontenc}
+\usepackage{tikz}
+\usepackage[utf8]{inputenc}
+\usepackage{PTSerif} 
+\usepackage{seqsplit}
+
+\usepackage[edges]{forest}
+
+\usepackage{listings}
+\usepackage{xcolor}
+
+\hypersetup{
+	colorlinks   = true, %Colours links instead of ugly boxes
+	urlcolor     = blue, %Colour for external hyperlinks
+	linkcolor    = blue, %Colour of internal links
+	citecolor   = red %Colour of citations
+}
+ 
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+ 
+\NewDocumentCommand{\codeword}{v}{
+\texttt{\textcolor{blue}{#1}}
+}
+\lstset{language=java,keywordstyle={\bfseries \color{blue}}}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\normalsize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+
+\settextfont[Scale=1.2 ,BoldFont={Bahij Nazanin-Bold.ttf} , ItalicFont = {IRNazaninIranic.ttf}]{Bahij Nazanin-Regular.ttf}
+\setlatintextfont[Scale = 1.0]{Garamond}
+\DefaultMathsDigits 
+\DeclareMathSizes{11}{19}{13}{9} 
+%\DeclareMathSizes{12}{14.4}{8}{9}
+
+
+
+
+
+\newenvironment{changemargin}[2]{%
+\begin{list}{}{%
+\setlength{\topsep}{0pt}%
+\setlength{\leftmargin}{#1}%
+\setlength{\rightmargin}{#2}%
+\setlength{\listparindent}{\parindent}%
+\setlength{\itemindent}{\parindent}%
+\setlength{\parsep}{\parskip}%
+}%
+\item[]}{\end{list}}
+
+
+\definecolor{foldercolor}{RGB}{124,166,198}
+
+\tikzset{pics/folder/.style={code={%
+    \node[inner sep=0pt, minimum size=#1](-foldericon){};
+    \node[folder style, inner sep=0pt, minimum width=0.3*#1, minimum height=0.6*#1, above right, xshift=0.05*#1] at (-foldericon.west){};
+    \node[folder style, inner sep=0pt, minimum size=#1] at (-foldericon.center){};}
+    },
+    pics/folder/.default={20pt},
+    folder style/.style={draw=foldercolor!80!black,top color=foldercolor!40,bottom color=foldercolor}
+}
+
+\forestset{is file/.style={edge path'/.expanded={%
+        ([xshift=\forestregister{folder indent}]!u.parent anchor) |- (.child anchor)},
+        inner sep=1pt},
+    this folder size/.style={edge path'/.expanded={%
+        ([xshift=\forestregister{folder indent}]!u.parent anchor) |- (.child anchor) pic[solid]{folder=#1}}, inner xsep=0.6*#1},
+    folder tree indent/.style={before computing xy={l=#1}},
+    folder icons/.style={folder, this folder size=#1, folder tree indent=3*#1},
+    folder icons/.default={12pt},
+}
+
+\begin{document}
+
+
+%%% title pages
+\begin{titlepage}
+\begin{center}
+        
+\vspace*{0.7cm}
+
+\includegraphics[width=0.4\textwidth]{sharif1.png}\\
+\vspace{0.5cm}
+\textbf{ \Huge{\emph ‌سیستم‌های عامل} }\\
+\vspace{0.5cm}
+\textbf{ \Large{ گزارش تمرین صفر} }
+\vspace{0.2cm}
+       
+ 
+      \large \textbf{دانشکده مهندسی کامپیوتر}\\\vspace{0.2cm}
+    \large   دانشگاه صنعتی شریف\\\vspace{0.2cm}
+       \large   ﻧﯿﻢ سال اول 00-99 \\\vspace{0.2cm}
+      \noindent\rule[1ex]{\linewidth}{1pt}
+اساتید:\\
+    \textbf{{جناب آقای دکتر خرازی}}
+
+
+    \vspace{0.15cm}
+نام و نام خانوادگی:\\
+
+       
+    \textbf{{امیرمهدی نامجو - 97107212}}
+\end{center}
+\end{titlepage}
+%%% title pages
+
+
+%%% header of pages
+\newpage
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot{}
+\cfoot{\thepage}
+\chead{گزارش تمرین صفر}
+\rhead{\includegraphics[width=0.1\textwidth]{sharif.png}}
+\lhead{امیرمهدی نامجو}
+%%% header of pages
+
+\KashidaOff
+
+
+\section{راه‌اندازی اولیه}
+
+\subsection{نصب ماشین‌مجازی}
+ابتدا \lr{Virtual Box} و \lr{Vagrant} را دانلود و نصب کردم. همچنین از آن جایی که روی ویندوز بودم و از قبل \lr{Cygwin} را نصب داشتم، کنترل کردم که کتابخانه‌های gcc و مواردی نظیر این که بعدا ممکن است لازم باشد نصب باشند.
+
+
+برای اجرای \lr{vagrant} به مشکلی خوردم که در حالت  \lr{vagrant up} در مرحله ssh متوقف می‌شد. بعد از جست‌وجو در اینترنت به این صفحه در  \href{https://stackoverflow.com/questions/64102520/vagrant-freezes-timeouts-at-ssh-auth-method-private-key}{StackOverflow} رسیدم. البته یکی از دانشجویان درس‌ هم یک فایل \lr{Vagrantfile} در دیسکورد قرار داده بود ولی همچنان با آن هم مشکل داشتم. طبق راه حل این صفحه، چند خط دیگر هم باید اضافه می کردم و در نهایت این خطوط به \lr{Vagrantfile} اضافه شدند.
+
+
+\begin{latin}
+\begin{verbatim}
+	config.vm.provider "virtualbox" do |vb|
+		vb.gui = true
+		vb.customize ["modifyvm", :id, "--uart1", "0x3F8", "4"]
+		vb.customize ["modifyvm", :id, "--uartmode1", "file", File::NULL]
+		vb.customize ["modifyvm", :id, "--nestedpaging", "off"]
+		vb.customize ["modifyvm", :id, "--cpus", 4]
+		vb.customize ["modifyvm", :id, "--paravirtprovider", "hyperv"]
+		vb.customize [ "modifyvm", :id, "--cableconnected1", "on" ]
+	end
+	
+\end{verbatim} 
+\end{latin}
+
+که البته قسمت \lr{gui} تاثیری ندارد و صرفا باعث می‌شود لاگ‌های سیستم عامل در یک پنجره مجزا دیده‌ شوند. حضور بقیه موارد همگی لازم بود تا در نهایت \lr{vagrant up} به درستی کار کند. بعد از آن \lr{vagrant ssh} هم بدون مشکل اعمال شد و به ماشین مجازی متصل شدم و دستورات مربوط به نصب پچ را اجرا کردم.
+
+
+\subsection{Git}
+
+ابتدا به سامانه طرشت لاگین کردم و محیط آن را بررسی کردم.
+
+برای قسمت {\lr{Git}} در ماشین مجازی، دو دستور گفته شده را به صورت زیر اجرا کردم.
+
+\begin{latin}
+	\begin{verbatim}
+		git config --global user.name "Amirmahdi Namjoo"
+		git config --global user.email "amirm137878@gmail.com"
+	\end{verbatim}
+	
+\end{latin}
+
+
+پس از آن با دستورات گفته شده در داک کلیدهای عمومی و خصوصی را تولید کرده و در سامانه طرشت قرار دادم.
+
+بعد از آن قسمت \lr{handouts} و همچنین بخش فردی را از گیت دریافت کردم.
+
+
+\subsection{اتصال VSCode به ماشین مجازی}
+
+پس از آن از آن جایی که می‌خواستم از \lr{VSCode} به عنوان ادیتور گرافیکی استفاده کنم، با جست‌وجویی مختصر راه حل اتصال \lr{ssh} آن به \lr{vagrant} را پیدا کردم.
+
+برای این کار، باید در پوشه ای که \lr{Vagrantfile} هست، دستور \lr{vagrant ssh-config} را اجرا کنیم. سپس متن تولید شده را باید در تنظیمات \lr{vscode} قرار داد. برای این کار در \lr{command palette} این نرم افزار \lr{ssh} را تایپ می‌کنیم و فایل \lr{configuration} آن را باز کرده و متن نوشته شده را که (در ویندوز) شبیه متن زیر است، کپی می‌کنیم.
+
+\begin{latin}
+	\begin{verbatim}
+		Host vagrant
+		HostName 127.0.0.1
+		User vagrant
+		Port 2222
+		UserKnownHostsFile /dev/null
+		StrictHostKeyChecking no
+		PasswordAuthentication no
+		IdentityFile C:/Users/username/.vagrant.d/boxes/ce424-VAGRANTSLASH-spring2020/
+		1.0.0/virtualbox/vagrant_private_key
+		IdentitiesOnly yes
+		LogLevel FATAL
+		ForwardAgent yes
+		ForwardX11 yes
+		
+	\end{verbatim}
+\end{latin}
+
+سپس با تایپ مجدد دستور \lr{ssh} و انتخاب گزینه وصل شدن به \lr{Remote-ssh} و انتخاب \lr{vagrant}، به \lr{vagrant} وصل شدم. (این که چه نامی ظاهر بشود، بستگی به عبارت ابتدای متن بالا یعنی  \lr{Host vagrant} دارد. این نام را می‌توان یک نام کاملا دلخواه در نظر گرفت.)
+
+
+
+
+\section{موارد مربوط به یادگیری}
+
+پس از این موارد، کمی در مورد \lr{gdb}، \lr{make} و کاربردهای پیچیده‌تر \lr{git}‌ که البته فعلا در این تمرین نیازی نشده است مطالعه کردم. از vim در حد خیلی کوتاه استفاده کردم ولی از آن جایی که خیلی با آن راحت نیستم، سراغ VSCode رفتم. بقیه موارد را هم در حدی که لازم باشد تست کردم و از man هم در قسمت‌های مختلف برای مشاهده راهنمای دستورات استفاده کردم. پس از مطالعه موارد اصلی به سراغ مابقی تمرین رفتم.
+
+
+\section{تمرین‌های مقدماتی}
+\subsection{کد Words}
+
+در این بخش کد‌های خواسته شده را پیاده سازی کردم که در گیت قابل مشاهده است. تنها نکته قابل توجه این بود که به نظر فایل آماده \lr{wc\_sort} به شکل عجیبی یک عنصر \lr{null} را هم در لیست‌های سورت شده وارد می‌کند. خود این موضوع مشکل‌ساز نیست ولی در چاپ مقادیر \lr{frequency} به اشتباه یک مقدار صفر \lr{null} هم چاپ می‌شد که برای رفع این مشکل، در تابع از پیش پیاده‌سازی شده چاپ کننده (\lr{fprintf\_words}) تغییر کوچکی ایجاد کردم که اگر مقدار تکرار یک عبارت صفر بود، آن را چاپ نکند. (عملا معنی هم ندارد چیزی که صفر بار تکرار شده چاپ شود)
+
+همچنین در هنگام نوشتن این داک به یک باگ حیاتی برخوردم که کدم به دلیل وجود دستور \lr{rewind} در هنگام خواندن از روی \lr{stdin}، به مشکل می‌خورد که آن را برطرف کردم و بدون دستور \lr{rewind} پیاده سازی کردم. در اصل اگر عملگر $>$ فایل به عنوان \lr{stdin}‌ داده می‌شد یا این که کلا یکسری آرگومان فایل داده می‌شد هیچ مشکلی پیش نمی‌آمد، اما اگر داده‌ها را دستی وارد می‌کردم، نیاز به دو بار وارد کردن داده‌ها و دو بار \lr{EOF} زدن بود که مشکل را حل کردم. همچنین با جست‌وجو فهمیدم که در هنگام ورودی دادن به \lr{stdin} در سیستم‌های \lr{UNIX-Based} با استفاده از \lr{Ctrl+D} و در ویندوز با \lr{Ctrl+Z} می‌توان کاراکتر خاص \lr{EOF} را ارسال کرد.
+
+\subsubsection{make}
+
+در مورد توضیحات \lr{make}، این موارد در \lr{Makefile.txt} قرار گرفته‌اند. موارد مختلفی که لازم بود را با جست‌وجو در راهنماهای آماده و همچنین داکیومنت‌های قرار داده شده در قسمت یادگیری پیدا کردم.
+
+\subsection{limits}
+
+برای این قسمت، با استفاده از \lr{man} به جزییات \lr{getrlimit} پی بردم و فهمیدم که برای حل این سوال، باید به عنوان پارامتر اول ورودی یکسری \lr{Constant} تعریف شده خاص را پاس بدهم که برای این سوال، موارد \lr{RLIMIT\_STACK} و \lr{RLIMIT\_NPROC} و \lr{RLIMIT\_NOFILE} بودند. همچنین ابتدا مقدار \lr{rlim\_max} را داشتم می‌گرفتم که مشاهده کردم برای استک، مقدار
+$2^{64}-1$
+چاپ می‌شود. سپس با داک دانشگاه برکلی (!) مراجعه کردم و متوجه شدم که ظاهرا این سوال \lr{soft limit} را می‌خواهد و نه \lr{hard limit}. این موضوع در متن فارسی به نظرم به طور واضح ذکر نشده بود که کدام مقدار حدی را می‌خواهیم. به هر حال با توجه به این که فهمیدم \lr{soft limit} را می‌خواهیم  از \lr{rlim\_cur} استفاده کردم.
+
+همچنین \lr{makefile} نوشته شده برای سوال برای \lr{target} های اصلی یعنی \lr{map} و \lr{limit} به خود \lr{map.c} و \lr{limit.c} وابسته نشده بود و متوجه تغییرات آن‌ها نمی‌شد و صرفا بررسی می‌کرد که فایل‌های باینری تولید شده باشند که با توجه به این موضوع، تغییرات جدید سورس کد را کامپایل نمی کرد. البته من هم آن را دستکاری نکردم و برای بازسازی فایل‌ها، ابتدا فایل‌هایی که از قبل کامپایل شده بودند را حذف می‌کردم که متوجه بشود باید دستور را دوباره اجرا کند.
+
+\subsection{gdb}
+
+برای این قسمت دوباره در مورد \lr{gdb}‌ مطالعه کردم و سپس آن را حل کردم. جزییات کامل در \lr{gdb.txt} موجود است.
+
+
+\subsection{\lr{Compiling, Assembling, and Linking}}
+
+
+برای این قسمت‌ها کارهای گفته شده را انجام داده و نتیجه را در \lr{call.txt} نوشته‌ام. تنها نکته این بود که با مراجعه به داک دانشگاه برکلی متوجه شدم قسمت دوم سوال به اشتباه نوشته شده در مورد \lr{.section} توضیح بدهیم که اصلا چنین چیزی وجود ندارد و هر کدام از بخش‌هایی نظیر \lr{.data}، \lr{.text}، \lr{.rodata} و... یک section هستند. با پرسیدن سوال در دیسکورد و گرفتن تاییدیه وجود مشکل، توضیحات را در مورد \lr{.data} و \lr{.text} نوشتم.
+
+
+
+
+\subsection{نکته پایانی در مورد این داک}
+این \LaTeX روی ماشین مجازی کامپایل نشده است. با این حال برای کامل بودن تمرین، فایل‌های سورس آن را به \lr{vm} انتقال دادم و روی گیت هم ارسال کردم.
+
+
+
+\end{document}
+
+
+
